@@ -25,7 +25,7 @@ app.get("/",(req,res)=>{
 app.get("/produtos", async (req,res)=>{
     try {
         const [produtos] = await db.query(
-            "SELECT * from produtos"
+            "SELECT * from produto"
         )
         res.json(produtos)
     } catch (error) {
@@ -38,7 +38,7 @@ app.post("/produtos", async (req, res) => {
         const { descricao, categoria, preco, imagem } = req.body;
 
         const sql = `
-            INSERT INTO produtos (descricao, categoria, preco, imagem)
+            INSERT INTO produto (descricao, categoria, preco, imagem)
             VALUES (?, ?, ?, ?)
         `;
 
@@ -74,7 +74,7 @@ app.delete("/produtos/:id",async(req,res)=>{
     try {
         const {id} = req.params
 
-        await db.query("DELETE FROM produtos WHERE id = ?",[id])
+        await db.query("DELETE FROM produto WHERE id = ?",[id])
 
         res.json({mensagem:"Produto deletado com sucesso"})
 
