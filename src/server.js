@@ -19,7 +19,7 @@ app.get("/",(req,res)=>{
     res.json({
         mensagem:"API funcionando"
     })
-})
+});
 
 
 app.get("/produtos", async (req,res)=>{
