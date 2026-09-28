@@ -13,6 +13,24 @@ app.use(cors({
     credentials: true
 }));
 
+// FUNÇÃO AUTOMÁTICA: Cria a tabela no banco assim que a API liga
+async function criarTabelaAutomatica() {
+    try {
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS produtos (
+                id int primary key auto_increment,
+                descricao varchar(100),
+                categoria varchar(50),
+                preco decimal(5,2),
+                imagem text
+            );
+        `);
+        console.log("Tabela 'produtos' verificada/criada com sucesso no Aiven!");
+    } catch (error) {
+        console.error("Erro ao criar tabela automaticamente:", error);
+    }
+}
+
 app.get("/", (req, res) => {
     res.json({
         mensagem: "API funcionando"
@@ -21,7 +39,6 @@ app.get("/", (req, res) => {
 
 app.get("/produtos", async (req, res) => {
     try {
-        // CORRIGIDO DE 'produto' PARA 'produtos'
         const [produtos] = await db.query(
             "SELECT * from produtos"
         )
@@ -36,7 +53,6 @@ app.post("/produtos", async (req, res) => {
     try {
         const { descricao, categoria, preco, imagem } = req.body;
 
-        // CORRIGIDO DE 'produto' PARA 'produtos'
         const sql = `
             INSERT INTO produtos (descricao, categoria, preco, imagem)
             VALUES (?, ?, ?, ?)
@@ -66,13 +82,12 @@ app.post("/produtos", async (req, res) => {
             mensagem: "Erro ao cadastrar produto"
         });
     }
-});
+})
 
 app.delete("/produtos/:id", async (req, res) => {
     try {
         const { id } = req.params
 
-        // CORRIGIDO DE 'produto' PARA 'produtos'
         await db.query("DELETE FROM produtos WHERE id = ?", [id])
 
         res.json({ mensagem: "Produto deletado com sucesso" })
@@ -85,6 +100,7 @@ app.delete("/produtos/:id", async (req, res) => {
     }
 })
 
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Servidor rodando na porta ${PORT}`)
+app.listen(PORT, '0.0.0.0', async () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+    await criarTabelaAutomatica(); // Executa a criação da tabela ao ligar
 })
