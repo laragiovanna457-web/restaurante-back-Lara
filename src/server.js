@@ -5,7 +5,6 @@ const db = require("./config/database")
 
 const app = express()
 
-// CORREÇÃO 1: Usar a porta dinâmica do Render ou 3001 para testes locais
 const PORT = process.env.PORT || 3001
 
 app.use(express.json())
@@ -22,14 +21,14 @@ app.get("/", (req, res) => {
 
 app.get("/produtos", async (req, res) => {
     try {
+        // CORRIGIDO DE 'produto' PARA 'produtos'
         const [produtos] = await db.query(
-            "SELECT * from produto"
+            "SELECT * from produtos"
         )
         res.json(produtos)
     } catch (error) {
         console.error("Erro ao buscar produtos:", error)
-        // CORREÇÃO 2: Responder com erro 500 caso o banco falhe, evitando o travamento
-        res.status(500).json({ erro: "Erro ao carregar produtos do banco de dados" })
+        res.status(500).json({ erro: "Erro ao carregar produtos do banco de dados", detalhe: error.message })
     }
 })
 
@@ -37,8 +36,9 @@ app.post("/produtos", async (req, res) => {
     try {
         const { descricao, categoria, preco, imagem } = req.body;
 
+        // CORRIGIDO DE 'produto' PARA 'produtos'
         const sql = `
-            INSERT INTO produto (descricao, categoria, preco, imagem)
+            INSERT INTO produtos (descricao, categoria, preco, imagem)
             VALUES (?, ?, ?, ?)
         `;
 
@@ -72,7 +72,8 @@ app.delete("/produtos/:id", async (req, res) => {
     try {
         const { id } = req.params
 
-        await db.query("DELETE FROM produto WHERE id = ?", [id])
+        // CORRIGIDO DE 'produto' PARA 'produtos'
+        await db.query("DELETE FROM produtos WHERE id = ?", [id])
 
         res.json({ mensagem: "Produto deletado com sucesso" })
 
@@ -84,7 +85,6 @@ app.delete("/produtos/:id", async (req, res) => {
     }
 })
 
-// CORREÇÃO 3: Adicionar '0.0.0.0' para o Render aceitar conexões externas corretamente
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor rodando na porta ${PORT}`)
 })
